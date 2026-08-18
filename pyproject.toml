@@ -1,0 +1,22 @@
+[project]
+name = "shrutlekh-proto"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "accelerate>=1.14.0",
+    "hindi-normalize>=0.1.0",
+    "huggingface-hub[cli]>=1.28.0",
+    "librosa>=1.0.0",
+    "llmclean>=0.4.0",
+    "ollama>=0.6.2",
+    "soundfile>=0.14.0",
+    "streamlit>=1.61.1",
+    "torch>=2.11.0",
+    "torchaudio>=2.11.0",
+    "transformers>=5.15.0",
+]
+
+[[tool.uv.index]]
+url = "https://download.pytorch.org/whl/cu128"
