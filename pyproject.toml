@@ -6,8 +6,10 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "accelerate>=1.14.0",
+    "evaluate>=0.4.6",
     "hindi-normalize>=0.1.0",
     "huggingface-hub[cli]>=1.28.0",
+    "jiwer>=4.0.0",
     "librosa>=1.0.0",
     "llmclean>=0.4.0",
     "ollama>=0.6.2",

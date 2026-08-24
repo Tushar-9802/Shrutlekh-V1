@@ -8,3 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Benchmark audio (podcast-derived clips stay local; FLEURS refs are CC-BY but keep the dir uniform)
+samples/
+results/
+transcript_step1.txt
