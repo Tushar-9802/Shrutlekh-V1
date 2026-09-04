@@ -13,3 +13,7 @@ wheels/
 samples/
 results/
 transcript_step1.txt
+
+
+#models
+models/

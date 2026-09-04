@@ -1,0 +1,10 @@
+{"model": "vaani-small-int8-ct2", "clip": "fleurs_hi_1711", "device": "cpu", "rtf": 0.121, "wer": 0.286, "chars": 211, "decode": "chunk15-nots"}
+{"model": "vaani-small-int8-ct2", "clip": "fleurs_hi_1842", "device": "cpu", "rtf": 0.154, "wer": 0.216, "chars": 271, "decode": "chunk15-nots"}
+{"model": "vaani-small-int8-ct2", "clip": "fleurs_hi_1937", "device": "cpu", "rtf": 0.176, "wer": 0.268, "chars": 382, "decode": "chunk15-nots"}
+{"model": "vaani-small-int8-ct2", "clip": "hindi_teentaal", "device": "cpu", "rtf": 0.156, "wer": null, "chars": 1210, "decode": "chunk15-nots"}
+{"model": "vaani-small-int8-ct2", "clip": "hinglish_indianpreneur_edtech", "device": "cpu", "rtf": 0.162, "wer": null, "chars": 1198, "decode": "chunk15-nots"}
+{"model": "vaani-medium-int8-ct2", "clip": "fleurs_hi_1711", "device": "cpu", "rtf": 0.376, "wer": 0.306, "chars": 212, "decode": "chunk15-nots"}
+{"model": "vaani-medium-int8-ct2", "clip": "fleurs_hi_1842", "device": "cpu", "rtf": 0.49, "wer": 0.216, "chars": 271, "decode": "chunk15-nots"}
+{"model": "vaani-medium-int8-ct2", "clip": "fleurs_hi_1937", "device": "cpu", "rtf": 0.585, "wer": 0.239, "chars": 392, "decode": "chunk15-nots"}
+{"model": "vaani-medium-int8-ct2", "clip": "hindi_teentaal", "device": "cpu", "rtf": 0.529, "wer": null, "chars": 1236, "decode": "chunk15-nots"}
+{"model": "vaani-medium-int8-ct2", "clip": "hinglish_indianpreneur_edtech", "device": "cpu", "rtf": 0.549, "wer": null, "chars": 1218, "decode": "chunk15-nots"}

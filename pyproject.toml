@@ -6,7 +6,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "accelerate>=1.14.0",
+    "ctranslate2>=4.8.1",
     "evaluate>=0.4.6",
+    "faster-whisper>=1.2.1",
     "hindi-normalize>=0.1.0",
     "huggingface-hub[cli]>=1.28.0",
     "jiwer>=4.0.0",
