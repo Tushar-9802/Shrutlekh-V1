@@ -37,6 +37,22 @@ Every available model fails code-mixed speech. Vaani's errors are script (Englis
 in Devanagari, meaning mostly intact); vanilla Whisper's are comprehension. This is the number
 v0.2 exists to move. Scorer: `scripts/benchmarks/score_wer.py` → `results/wer.jsonl`.
 
+**Code-mix models (2026-09-14, same reference, cuda):**
+
+| model | Hinglish WER | FLEURS mean | notes |
+|---|---|---|---|
+| Trelis whisper-hinglish-preview, `<|mixedcode|>` on | **0.164** | 0.272 | FLEURS penalty is script convention, not quality |
+| Trelis, token off | 0.256 | 0.194 | Hindi quality ≈ vaani-large-v3 (0.187) |
+| Srota qwen3-asr-0.6b-hinglish | 0.199 | 0.364 | drops leading audio (teentaal −10 s, fleurs_1842 −40%) |
+| vaani-large-v3 (previous best) | 0.569 | 0.187 | |
+
+Trelis is the v0.2 GPU-tier engine: Vaani-level Hindi plus a 4.2× Hinglish WER cut over the
+shipping config. The token is a per-recording mode (Hindi vs Hinglish) — the app needs a toggle
+or a first-pass script-ratio auto-detect. Srota's deletions disqualify it until the cause is
+found; it stays the 0.6B CPU-tier candidate on paper. Trelis on CPU = CT2-int8 conversion with
+a generated `tokenizer.json` and a patched `sot_sequence` (unverified). Reference set is n=1 for
+Hinglish — grow it before the launch claim. Pin the Trelis weight hash (research preview).
+
 ## Phase 0 — extend the bake-off (this week)
 
 - [ ] Commit benchmark work.
@@ -96,6 +112,40 @@ Risks: multilingual embedding quality on Hinglish (measure first — if e5-small
 code-mix queries, try bge-m3 small-batch or transliterate-to-single-script before embedding);
 sqlite-vec on Windows (ships wheels — verify early); scale is trivial (personal archives =
 hundreds of meetings, brute-force cosine would honestly suffice).
+
+### Marginalia port (2026-09-14) — Phase 1.5 is mostly already written
+
+Marginalia (Fic Search MVP, separate private repo) is a working hybrid-RAG stack over long
+documents: paragraph-aware chunker → sqlite-vec dense + rank-bm25 lexical → RRF → ordinal /
+structural query routing → neighbour expansion → grounded answer with citation validation and
+cited-first source panel; FastAPI + vanilla-JS shell, background indexer with status polling,
+tested to ~680K words. It is the Phase 1.5 design, built. The fanfic community's 2026 AI
+climate (mass AI-accusation doc, harassment waves, AO3 no-policy) makes a public fic-tool launch
+a poor bet; the stack moves here, the fic repo stays private for personal use.
+
+Reuse map (chapters → meetings, paragraphs → timestamped ASR segments):
+
+| Marginalia module | Shrutlekh use | change |
+|---|---|---|
+| `ingest/chunk.py` | segment-aware chunker | paragraphs = whisper segments; keep 300–500 tok target |
+| `search/retrieve.py` | hybrid retrieval | `\w+` tokenizer already handles Devanagari; ordinal cues need Hindi/Hinglish forms (पहले, पहली बार, kab, sabse pehle); structural routing → "last meeting" / date / title |
+| `search/answer.py` | grounded answer + citation validation | OpenAI → Ollama gemma3n; citation label → `[<meeting>, mm:ss–mm:ss]`; keep the strict-constraint prompt and hallucinated-citation strip |
+| `search/pipeline.py` | query orchestration | drop budget caps; keep query log |
+| `ingest/embed.py` | embeddings | OpenAI 1536-d → local `multilingual-e5-small` 384-d (`vec0 FLOAT[384]`), `query:`/`passage:` prefixes |
+| `db.py` + `workers/indexer.py` | store + background jobs | works→meetings, chapters→recordings, chunks keyed by (meeting, t_start, t_end) |
+| `ingest/entities.py`, `search/entity_facts.py` | people/projects/decisions index across meetings | later; strong fit for "what did X commit to" |
+| `main.py`, `static/*` | app shell | candidate replacement for the Streamlit MVP (see decision below) |
+| `ingest/fetch.py`, `ingest/parse.py`, `mail.py`, `routes/suggestions.py` | — | not ported (AO3/epub/boilerplate/email) |
+
+Port rules: copy files, never merge repos (Marginalia is under a separate identity — its
+history stays there); scan every ported file for fic-derived strings before it lands here;
+Hinglish embedding quality is measured before the embedder is committed.
+
+**Open decision — app shell.** Streamlit was picked for speed. Marginalia's FastAPI +
+vanilla-JS shell already exists, is tested, and is what a Tauri build wraps later; Streamlit
+would be thrown away at that point. Adopting the shell now means v0.1 replaces the works
+ingestion with audio ingestion (upload → ASR → normalize → summarize) inside a proven app,
+and Phase 1.5 comes along for free. Cost: a few days more than a Streamlit page.
 
 ## Phase 2 — v0.2 Hinglish (the loud launch)
 

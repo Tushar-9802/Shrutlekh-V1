@@ -17,3 +17,8 @@ transcript_step1.txt
 
 #models
 models/
+# per-model isolated envs (qwen-asr pins transformers 4.57.6)
+envs/
+
+#others
+settings.local.json
