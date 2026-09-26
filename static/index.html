@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shrutlekh</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <button id="theme-toggle" class="theme-toggle" type="button">theme</button>
+    <h1>Shrutlekh</h1>
+    <p class="masthead-sub">&#x936;&#x94D;&#x930;&#x941;&#x924;&#x932;&#x947;&#x916; &mdash; what is heard, written down</p>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <section class="panel">
+        <h2 class="panel-label">Add a recording</h2>
+        <form id="add-form" class="add-form" novalidate>
+          <label class="field">
+            <span>Audio or video file</span>
+            <input type="file" id="file-input" required>
+          </label>
+          <label class="field">
+            <span>Language</span>
+            <select id="mode-input"></select>
+          </label>
+          <label class="field">
+            <span>Notes style</span>
+            <select id="template-input"></select>
+          </label>
+          <label class="field">
+            <span>Title <em>(optional)</em></span>
+            <input type="text" id="title-input" autocomplete="off" placeholder="taken from the filename">
+          </label>
+          <button type="submit" id="add-submit" class="button">Transcribe</button>
+        </form>
+        <p id="add-error" class="error" hidden></p>
+        <p id="engine-note" class="muted engine-note"></p>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-label">Search</h2>
+        <form id="search-form" class="search-form" novalidate>
+          <input type="search" id="search-input" autocomplete="off" placeholder="a word from any recording">
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-label">Recordings</h2>
+        <ul id="recordings-list" class="recordings-list"></ul>
+        <p id="recordings-empty" class="muted" hidden>Nothing transcribed yet.</p>
+      </section>
+    </aside>
+
+    <section class="main-area">
+      <div id="empty-state" class="empty-state">
+        <p class="muted">Upload a recording and it is transcribed, normalised and summarised
+          entirely on this machine. Nothing is sent anywhere.</p>
+      </div>
+
+      <article id="search-view" hidden>
+        <header class="view-head">
+          <h2 id="search-heading"></h2>
+          <button id="search-clear" class="link-button" type="button">clear</button>
+        </header>
+        <ul id="search-results" class="search-results"></ul>
+        <p id="search-empty" class="muted" hidden>No matches.</p>
+      </article>
+
+      <article id="recording-view" hidden>
+        <header class="view-head">
+          <h2 id="recording-title"></h2>
+          <button id="delete-recording" class="link-button" type="button">remove</button>
+        </header>
+        <p id="recording-meta" class="meta"></p>
+        <p id="recording-progress" class="progress" hidden></p>
+        <p id="recording-error" class="error" hidden></p>
+
+        <section id="notes-section" hidden>
+          <h3 class="section-label">Notes</h3>
+          <div id="notes-summary" class="summary"></div>
+          <div id="action-items" hidden>
+            <h3 class="section-label">Action items</h3>
+            <ul id="action-list" class="action-list"></ul>
+          </div>
+        </section>
+
+        <section id="transcript-section" hidden>
+          <h3 class="section-label">
+            Transcript
+            <button id="transcript-toggle" class="link-button" type="button">show</button>
+          </h3>
+          <ol id="transcript" class="transcript" hidden></ol>
+        </section>
+      </article>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

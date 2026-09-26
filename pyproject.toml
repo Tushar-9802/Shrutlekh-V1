@@ -8,6 +8,7 @@ dependencies = [
     "accelerate>=1.14.0",
     "ctranslate2>=4.8.1",
     "evaluate>=0.4.6",
+    "fastapi>=0.141.1",
     "faster-whisper>=1.2.1",
     "hindi-normalize>=0.1.0",
     "huggingface-hub[cli]>=1.28.0",
@@ -15,12 +16,19 @@ dependencies = [
     "librosa>=1.0.0",
     "llmclean>=0.4.0",
     "ollama>=0.6.2",
+    "python-multipart>=0.0.32",
+    "python-ulid>=4.0.1",
     "soundfile>=0.14.0",
     "streamlit>=1.61.1",
     "torch>=2.11.0",
     "torchaudio>=2.11.0",
     "transformers>=5.15.0",
+    "uvicorn[standard]>=0.52.3",
 ]
 
 [[tool.uv.index]]
 url = "https://download.pytorch.org/whl/cu128"
+
+[tool.uv.sources]
+hindi-normalize = { path = "../hindi-normalize" }
+llmclean = { path = "../prototype/llmclean" }

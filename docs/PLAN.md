@@ -13,12 +13,12 @@ Meetily's non-English issue cluster (#150, #370, #581, #584) doubles as our feat
 
 ## Bake-off verdict (measured, 2026-08-24)
 
-| model | WER (FLEURS avg) | CPU RTF (4 thr) | role |
-|---|---|---|---|
-| vaani-small (244M) | 0.217 | 0.36–0.89 | low tier |
-| vaani-medium (769M) | 0.199 | 0.98–2.23 | mid tier |
-| vaani-large-v3 (1.5B) | 0.187 | 1.8–4.2 | GPU tier |
-| vanilla large-v3 (1.5B) | 0.296 | 1.8–3.3 | baseline only |
+| model                   | WER (FLEURS avg) | CPU RTF (4 thr) | role          |
+| ----------------------- | ---------------- | --------------- | ------------- |
+| vaani-small (244M)      | 0.217            | 0.36–0.89      | low tier      |
+| vaani-medium (769M)     | 0.199            | 0.98–2.23      | mid tier      |
+| vaani-large-v3 (1.5B)   | 0.187            | 1.8–4.2        | GPU tier      |
+| vanilla large-v3 (1.5B) | 0.296            | 1.8–3.3        | baseline only |
 
 vaani-small beats vanilla large-v3 at 1/6 the size; Indic fine-tuning = 37% relative WER cut
 at equal architecture. Greedy decode fully deterministic; CPU/GPU transcripts identical.
@@ -26,12 +26,12 @@ Full rows: `results/asr_bench.jsonl`. Harness: `scripts/benchmarks/bench_one.py`
 
 **Hinglish (2026-08-31, hand-corrected mixed-script reference, 90s real podcast audio):**
 
-| model | WER | CER |
-|---|---|---|
-| vaani-large-v3 | 0.569 | 0.534 |
-| vaani-medium | 0.651 | 0.588 |
+| model                                  | WER   | CER   |
+| -------------------------------------- | ----- | ----- |
+| vaani-large-v3                         | 0.569 | 0.534 |
+| vaani-medium                           | 0.651 | 0.588 |
 | vaani-small-int8 (shipping CPU config) | 0.687 | 0.625 |
-| vanilla whisper-large-v3 | 0.911 | 0.703 |
+| vanilla whisper-large-v3               | 0.911 | 0.703 |
 
 Every available model fails code-mixed speech. Vaani's errors are script (English words rendered
 in Devanagari, meaning mostly intact); vanilla Whisper's are comprehension. This is the number
@@ -39,12 +39,12 @@ v0.2 exists to move. Scorer: `scripts/benchmarks/score_wer.py` → `results/wer.
 
 **Code-mix models (2026-09-14, same reference, cuda):**
 
-| model | Hinglish WER | FLEURS mean | notes |
-|---|---|---|---|
-| Trelis whisper-hinglish-preview, `<|mixedcode|>` on | **0.164** | 0.272 | FLEURS penalty is script convention, not quality |
-| Trelis, token off | 0.256 | 0.194 | Hindi quality ≈ vaani-large-v3 (0.187) |
-| Srota qwen3-asr-0.6b-hinglish | 0.199 | 0.364 | drops leading audio (teentaal −10 s, fleurs_1842 −40%) |
-| vaani-large-v3 (previous best) | 0.569 | 0.187 | |
+| model                               | Hinglish WER | FLEURS mean | notes                                                    |
+| ----------------------------------- | ------------ | ----------- | -------------------------------------------------------- |
+| Trelis whisper-hinglish-preview, `< | mixedcode    | >` on       | **0.164**                                          |
+| Trelis, token off                   | 0.256        | 0.194       | Hindi quality ≈ vaani-large-v3 (0.187)                  |
+| Srota qwen3-asr-0.6b-hinglish       | 0.199        | 0.364       | drops leading audio (teentaal −10 s, fleurs_1842 −40%) |
+| vaani-large-v3 (previous best)      | 0.569        | 0.187       |                                                          |
 
 Trelis is the v0.2 GPU-tier engine: Vaani-level Hindi plus a 4.2× Hinglish WER cut over the
 shipping config. The token is a per-recording mode (Hindi vs Hinglish) — the app needs a toggle
@@ -55,31 +55,42 @@ Hinglish — grow it before the launch claim. Pin the Trelis weight hash (resear
 
 ## Phase 0 — extend the bake-off (this week)
 
-- [ ] Commit benchmark work.
-- [ ] CT2-int8 convert vaani-small + vaani-medium (`ct2-transformers-converter --quantization int8`);
-      re-run CPU rows via faster-whisper. Target: small ≤ ~0.25 RTF @ 4 threads.
-- [ ] Hand-correct the two podcast references (mixed-script convention for the Hinglish clip —
-      it becomes the v0.2 acceptance format).
-- [ ] Add Hinglish shortlist to the grid (both Apache-2.0, both native mixed-script output):
-      `Trelis/whisper-hinglish-preview` (large-v3 FT on the Vaani checkpoint, `<|mixedcode|>` token;
-      research preview → pin weights + hash) and `moorlee/qwen3-asr-0.6b-hinglish` "Srota"
-      (Qwen3-ASR FT; ggml-org GGUF path for CPU).
+- [x] Commit benchmark work.
+- [x] CT2-int8 convert vaani-small + vaani-medium. Small lands at RTF 0.12–0.18 @ 4 threads,
+  beating the ≤0.25 target; medium-int8 does not beat small on quality, so small is the CPU tier.
+  Hunting a truncation bug on the way found the 448-token/window cap (see the bake-off note).
+- [x] Hand-correct the Hinglish reference — `samples/hinglish_indianpreneur_edtech.ref.txt`,
+  281 words, ~50/50 script. It is the v0.2 acceptance format.
+- [ ] Hand-correct the Teen Taal reference, for n=2 on spontaneous Hindi.
+- [x] Add the Hinglish shortlist to the grid. Trelis wins (see the table above); Srota is
+  competitive at 0.6B but drops leading audio, so it is parked until that is understood.
 - [ ] Benchmark `trysem/indicconformer-120m-onnx` (plain onnxruntime, CC-BY-4.0) as low-tier
-      dark horse; earns a slot only if it beats int8-vaani-small on our clips.
+  dark horse; earns a slot only if it beats int8-vaani-small on our clips.
+- [ ] Pin the Trelis weight hash — it is a research preview and the card says weights may change.
+
 - Skip: NeMo-fork .nemo checkpoints on Windows; `atharva-again` 600M int8 port (WER doubled);
   Sarvam (no open ASR weights).
 
 ## Phase 1 — v0.1 spine (1–2 weeks, quiet GitHub ship)
 
-Upload → tiered ASR (int8-vaani-small CPU / vaani-medium+ GPU) → hindi-normalize →
-gemma3n:e4b (meeting/lecture/brief templates, MedScribe patterns) → llmclean → SQLite →
-Streamlit list/keyword-search → markdown export.
+Upload → tiered ASR (int8-vaani-small CPU / Trelis GPU) → hindi-normalize → gemma3n:e4b
+(meeting/lecture/brief) → llmclean → SQLite → web UI with keyword search.
 
-- Summaries in the transcript's language (Hindi in → Hindi summary) — Meetily's documented gap.
-- Keep the original upload untouched on disk; transcribe from a processed copy
-  (Meetily's two-path idea → re-transcribe-later comes free).
-- Eval harness re-scores the 5-clip set on every pipeline change.
-- README leads with the bake-off table. No launch thread.
+**Built and verified end to end.** Streamlit was dropped for a FastAPI + vanilla-JS shell, which
+is what a Tauri build wraps later.
+
+- [x] `pipeline.run()` — HTTP-free, per-stage timings, called by both the CLI and the API.
+- [x] SQLite store: recordings / segments / notes, WAL, FTS5 over segments. `trigram`, not
+  `unicode61`: the latter splits Devanagari at every matra, so अच्छा falsely matches अच्छी.
+- [x] Background worker with a status machine and a lock, so two uploads cannot load two models.
+- [x] API: upload, poll, list, segments, notes, search, delete, config.
+- [x] UI: upload form, live status, notes, action items, collapsible transcript, search.
+- [x] Summaries in the transcript's own language and script — Meetily's documented gap. The
+  script is decided in code, and the prompt needs the *wrong* answer shown, not just the right one.
+- [x] The original upload is kept untouched; a copy is what gets processed.
+- [ ] README leading with the bake-off table.
+- [ ] Demo GIF, recorded on CPU-tier hardware so the claim matches the machine.
+- [ ] Quiet GitHub ship. No launch thread — that waits for v0.2.
 
 ## Phase 1.5 — RAG query over past notes ("what was discussed where")
 
@@ -90,6 +101,7 @@ launch-gating — retention feature, not acquisition. Est. 1–2 days for hybrid
 3–5 days for grounded answering + eval.
 
 Design:
+
 - **Store**: `sqlite-vec` virtual table + FTS5 table in the SAME SQLite db as the notes.
   Zero new infrastructure; ships as part of the app db file.
 - **Chunking**: whisper segments merged to ~200–400-token windows (1-segment overlap),
@@ -125,17 +137,17 @@ a poor bet; the stack moves here, the fic repo stays private for personal use.
 
 Reuse map (chapters → meetings, paragraphs → timestamped ASR segments):
 
-| Marginalia module | Shrutlekh use | change |
-|---|---|---|
-| `ingest/chunk.py` | segment-aware chunker | paragraphs = whisper segments; keep 300–500 tok target |
-| `search/retrieve.py` | hybrid retrieval | `\w+` tokenizer already handles Devanagari; ordinal cues need Hindi/Hinglish forms (पहले, पहली बार, kab, sabse pehle); structural routing → "last meeting" / date / title |
-| `search/answer.py` | grounded answer + citation validation | OpenAI → Ollama gemma3n; citation label → `[<meeting>, mm:ss–mm:ss]`; keep the strict-constraint prompt and hallucinated-citation strip |
-| `search/pipeline.py` | query orchestration | drop budget caps; keep query log |
-| `ingest/embed.py` | embeddings | OpenAI 1536-d → local `multilingual-e5-small` 384-d (`vec0 FLOAT[384]`), `query:`/`passage:` prefixes |
-| `db.py` + `workers/indexer.py` | store + background jobs | works→meetings, chapters→recordings, chunks keyed by (meeting, t_start, t_end) |
-| `ingest/entities.py`, `search/entity_facts.py` | people/projects/decisions index across meetings | later; strong fit for "what did X commit to" |
-| `main.py`, `static/*` | app shell | candidate replacement for the Streamlit MVP (see decision below) |
-| `ingest/fetch.py`, `ingest/parse.py`, `mail.py`, `routes/suggestions.py` | — | not ported (AO3/epub/boilerplate/email) |
+| Marginalia module                                                                | Shrutlekh use                                   | change                                                                                                                                                                                  |
+| -------------------------------------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ingest/chunk.py`                                                              | segment-aware chunker                           | paragraphs = whisper segments; keep 300–500 tok target                                                                                                                                 |
+| `search/retrieve.py`                                                           | hybrid retrieval                                | `\w+` tokenizer already handles Devanagari; ordinal cues need Hindi/Hinglish forms (पहले, पहली बार, kab, sabse pehle); structural routing → "last meeting" / date / title |
+| `search/answer.py`                                                             | grounded answer + citation validation           | OpenAI → Ollama gemma3n; citation label →`[<meeting>, mm:ss–mm:ss]`; keep the strict-constraint prompt and hallucinated-citation strip                                             |
+| `search/pipeline.py`                                                           | query orchestration                             | drop budget caps; keep query log                                                                                                                                                        |
+| `ingest/embed.py`                                                              | embeddings                                      | OpenAI 1536-d → local`multilingual-e5-small` 384-d (`vec0 FLOAT[384]`), `query:`/`passage:` prefixes                                                                           |
+| `db.py` + `workers/indexer.py`                                               | store + background jobs                         | works→meetings, chapters→recordings, chunks keyed by (meeting, t_start, t_end)                                                                                                        |
+| `ingest/entities.py`, `search/entity_facts.py`                               | people/projects/decisions index across meetings | later; strong fit for "what did X commit to"                                                                                                                                            |
+| `main.py`, `static/*`                                                        | app shell                                       | candidate replacement for the Streamlit MVP (see decision below)                                                                                                                        |
+| `ingest/fetch.py`, `ingest/parse.py`, `mail.py`, `routes/suggestions.py` | —                                              | not ported (AO3/epub/boilerplate/email)                                                                                                                                                 |
 
 Port rules: copy files, never merge repos (Marginalia is under a separate identity — its
 history stays there); scan every ported file for fic-derived strings before it lands here;
@@ -170,6 +182,7 @@ publishable artifact (per-stage attribution across Sakhi/MedScribe/Shrutlekh).
 
 What placed: narrow scope, a fine-tune on a purpose-built dataset, one hard metric up front,
 finished build with on-device benchmarks. Applied here:
+
 - The one number: code-mix WER on real Hinglish audio, measured on CPU-class hardware.
   README and launch lead with it; the feature list comes after.
 - Fine-tune only if Trelis/Srota fail the Hinglish acceptance set — a base model that wins the

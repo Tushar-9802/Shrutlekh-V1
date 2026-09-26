@@ -22,3 +22,8 @@ envs/
 
 #others
 settings.local.json
+# app data (audio copies + sqlite archive)
+data/
+
+# editor config
+.vscode/

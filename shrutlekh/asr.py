@@ -18,6 +18,10 @@ def load_audio(file_path: Path) -> np.ndarray:
     audio, _ = librosa.load(file_path, sr=SR, mono=True) #all formats for ffmpeg
     return audio.astype(np.float32)
 
+def audio_duration(path: Path) -> float:
+    return float(librosa.get_duration(path=path))
+
+
 def transcribe(path: Path, settings: Settings, mode: str = "hindi") -> list[Segment]:
     audio = load_audio(path)
     if settings.tier == "gpu":
